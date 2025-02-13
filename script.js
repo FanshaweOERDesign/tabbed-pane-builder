@@ -687,7 +687,15 @@ function startup() {
       alert('Please enter a page id');
       return;
     }
-    TabbedPane.initializeTabMap(pageId.replace(/\s+/g, '_'));
+    const sanitizeForCSS = (str) => {
+      return str
+        .toLowerCase() // Convert to lowercase
+        .trim() // Remove leading and trailing spaces
+        .replace(/[^a-z0-9\-_]+/g, '-') // Replace invalid characters with hyphens
+        .replace(/^-+|-+$/g, '') // Remove leading and trailing hyphens
+        .replace(/^-?\d+/, 'id-$&'); // Prefix with 'id-' if it starts with a number
+    };
+    TabbedPane.initializeTabMap(sanitizeForCSS(pageId));
     generateCSS();
     updateHTML();
     generateHTML();
