@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<!--
+MIT License
+
+Copyright (c) 2025 Jason Benoit
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+-->
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabbed Pane Builder</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/themes/prism.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.13.5/beautify-html.min.js"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" />
+    <link rel="shortcut icon" href="images/oer_logo.ico" />
+</head>
+
+<body onload="startup()">
+    <div class="main-container">
+        <h1 class="page-title">Tabbed Pane Builder</h1>
+        <div id="tools-container">
+            <div class="toolbar">
+                <div class="breaking-rows">
+                    <div class="toolbar-row">
+                        <!-- <button id="undo" onclick="TabbedPane.undo()">
+                            <i class="fa-solid fa-rotate-left"></i>
+                        </button>  -->
+                        <div class="color">
+                            <span for="headerColor">Tab Text</span>
+                            <input type="color" id="tabColor" class="adv-option-button" value="#FFFFFF" />
+                        </div>
+
+                        <div class="color">
+                            <span for="headerBg">Tab Default Background</span>
+                            <input type="color" id="tabDefaultBg" class="adv-option-button" value=""/>
+                        </div>
+                        <div class="color">
+                            <span for="headerBg">Tab Active Text</span>
+                            <input type="color" id="tabActiveColor" class="adv-option-button" />
+                        </div>
+                        <div class="color">
+                            <span for="headerBg">Tab Active Background</span>
+                            <input type="color" id="tabActiveBg" class="adv-option-button" />
+                        </div>
+                        <div class="color">
+                            <span for="bodyColor">Body Text</span>
+                            <input type="color" id="bodyColor" class="adv-option-button" />
+                        </div>
+                        <div class="color">
+                            <span for="bodyBg">Body Background</span>
+                            <input type="color" id="bodyBg" class="adv-option-button" />
+                        </div>
+                    </div>
+                </div>
+                <div class="toolbar-row">
+                    <div class="color">
+                        <span for="number">Number of Tabbed Panes:</span>
+                        <input type="number" id="numPanes" onchange="setNumber(this.value)" value="1" min="1"
+                            class="adv-option-button" />
+                    </div>
+                    <div class="color">
+                        <span for="number">Number of Tabs:</span>
+                        <input type="number" id="numTabs" onchange="setTabNumber(this.value)" value="3" min="2" max="6"
+                            class="adv-option-button" />
+                    </div>
+                    <div class="color">
+                        <span for="uniformColours">Uniform Colours</span>
+                        <input type="checkbox" id="uniformColours" onchange="updateHTML()" checked
+                            class="adv-option-button" />
+                    </div>
+                    <div class="color">
+                        <span for="uniformColours">Vertical Orientation</span>
+                        <input type="checkbox" id="verticalTabs" onchange="updateHTML()"
+                            class="adv-option-button" />
+                    </div>
+                </div>
+            </div>
+
+            <div id="preview-tabbed-pane">
+                <div class="custom-tab-container" id="tab_pane_placeholder">
+                    <div class="tab-row">
+                        <div id="custom-tab1" class="custom-tab" tabindex="1">Tab 1</div>
+                        <div id="custom-tab2" class="custom-tab" tabindex="1">Tab 2</div>
+                        <div id="custom-tab3" class="custom-tab" tabindex="1">Tab 3</div>
+                    </div>
+                    <div class="custom-tab-content-container" id="custom-tab-content-container1">
+                        <div id="custom-tab-content1" class="custom-tab-content" tabindex="1">Tab Content 1</div>
+                        <div class="custom-tab-content-container">
+                            <div id="custom-tab-content2" class="custom-tab-content" tabindex="1">Tab Content 2</div>
+                            <div class="custom-tab-content-container">
+                                <div id="custom-tab-content3" class="custom-tab-content" tabindex="1">Tab Content 3</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="generated-code-container">
+                <div class="tab">
+                    <button class="tablinks active" onclick="openTab(event, 'html')">HTML</button>
+                    <button class="tablinks" onclick="openTab(event, 'css')">Custom CSS</button>
+                    <button class="tablinks" onclick="openTab(event, 'pdfCss')">PDF CSS</button>
+                </div>
+                <div id="html" class="tabcontent" style="display: block;">
+                    <p>Copy and paste this code into Pressbooks!</p>
+                    <button id="btn-copy-generated-html" onclick="copy('generated-html')">
+                        <i class="fa-regular fa-copy"></i>
+                        Copy
+                    </button>
+                    <pre><code id="generated-html" class="language-markup"></code></pre>
+                </div>
+
+                <div id="css" class="tabcontent">
+                    <p>Copy and paste this code into the Custom Styles of Pressbooks!</p>
+                    <p>NOTE: You only have to do this once.</p>
+                    <button id="btn-copy-generated-css" onclick="copy('generated-css')">
+                        <i class="fa-regular fa-copy"></i>
+                        Copy
+                    </button>
+                    <pre><code id="generated-css" class="language-css"></code></pre>
+                </div>
+                <div id="pdfCss" class="tabcontent">
+                    <p>Copy and paste this code into the Custom Styles of Pressbooks!</p>
+                    <p>NOTE: You only have to do this once.</p>
+                    <button id="btn-copy-generated-pdf-css" onclick="copy('generated-pdf-css')">
+                        <i class="fa-regular fa-copy"></i>
+                        Copy
+                    </button>
+                    <pre><code id="generated-pdf-css" class="language-css"></code></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="logo-div">
+        <img id="logo" src="images/oer_logo.png" />
+    </div>
+    <footer>
+        <div>Tabbed Pane Builder by Jason Benoit and the Fanshawe OER Design Studio is open source
+            software made
+            available under the <a href="https://choosealicense.com/licenses/mit/">MIT License</a>.
+        </div>
+    </footer>
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <div id="modal-text">
+                <h2>Tabbed Pane Builder</h2>
+                <p>Tabbed Pane Builder is a tool that allows you to create tabbed panes for Pressbooks. You can
+                    customize the
+                    number of tabs, the colours, and the content of each tab. Once you are happy with your design,
+                    you can
+                    copy the HTML and CSS code to your Pressbooks page.</p>
+                <h3>How to Use</h3>
+                <p>Each page on which you place tabbed panes requires its own CSS, which is why you must enter a unique page id below. Refresh your browser to add tabs to another page.</p>
+                <p>NOTE: Ensure that you name your tabs before copying the HTML/CSS to your Pressbook, as otherwise they might not display properly in PDF exports. Using this editor to build out the content is optional.</p>
+                <p>Click on the "HTML" tab to see the HTML code for your tabbed pane. Click on the "Custom CSS"
+                    tab to see the
+                    CSS code for your tabbed pane. Copy the HTML and CSS code to your Pressbooks page.</p>
+                <input type="text" id="pageId" placeholder="Enter a unique page id" />
+                <button id="new-page-modal">New Page</button>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/prism.min.js"></script>
+    <script src="script.js"></script>
+
+</body>
+
+</html>
