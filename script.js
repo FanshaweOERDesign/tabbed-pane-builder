@@ -208,7 +208,7 @@ class TabbedPane {
           tab.tabText = tabText;
           //console.log('Tab text: ' + tabText);
         }
-        html += `<div id="${TabbedPane.pageId}-custom-tab-${key}-${i + 1}" class="${TabbedPane.pageId}-custom-tab" tabindex="1" contentEditable="true">${tabText}</div>`;
+        html += `<div id="${TabbedPane.pageId}-custom-tab-${key}-${i + 1}" class="${TabbedPane.pageId}-custom-tab" tabindex="0" contentEditable="true">${tabText}</div>`;
         tab.tabNumber = i + 1;
       });
       html += `</div>
@@ -218,7 +218,7 @@ class TabbedPane {
         if (document.getElementById(`${TabbedPane.pageId}-custom-tab-content-${key}-${tab.tabNumber}`)) {
           tabContent = document.getElementById(`${TabbedPane.pageId}-custom-tab-content-${key}-${tab.tabNumber}`).innerHTML;
         }
-        html += `<div id="${TabbedPane.pageId}-custom-tab-content-${key}-${tab.tabNumber}" class="${TabbedPane.pageId}-custom-tab-content" contentEditable="true" tabindex="1">${tabContent}</div>`;
+        html += `<div id="${TabbedPane.pageId}-custom-tab-content-${key}-${tab.tabNumber}" class="${TabbedPane.pageId}-custom-tab-content" contentEditable="true" tabindex="0">${tabContent}</div>`;
       });
       html += `</div>
                 </div>
