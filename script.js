@@ -22,6 +22,7 @@ class TabbedPane {
   static defaultTabSelectedColor = "#ffffff";
   static defaultBodyBg = "#ffffff";
   static defaultBodyColor = "#000000";
+  static productionElement = document.createElement('div');
 
 
   constructor(defaultBg = TabbedPane.defaultTabBg, selectedBg = TabbedPane.defaultTabSelectedBg, defaultColor = TabbedPane.defaultTabColor, selectedColor = TabbedPane.defaultTabSelectedColor, bodyBg = TabbedPane.defaultBodyBg, bodyColor = TabbedPane.defaultBodyColor, vertical = false) {
@@ -50,28 +51,6 @@ class TabbedPane {
     this.tabs.splice(tabIdx, 1);
   }
 
-  // static backup() {
-  //   let currentState = {
-  //     tabMap: Object.assign({}, TabbedPane.tabMap),
-  //     pageId: TabbedPane.pageId,
-  //     cssRules: Object.assign({}, TabbedPane.cssRules)
-  //   };
-  //   TabbedPane.undoStack.push(currentState);
-  //   console.info("backup: %o", TabbedPane.undoStack);
-  // }
-
-  // static undo() {
-  //   if (TabbedPane.undoStack.length > 0) {
-  //     let prevState = TabbedPane.undoStack.pop();
-  //     console.info("prevState: %o", prevState);
-  //     TabbedPane.tabMap = Object.assign({},prevState.tabMap);
-  //     TabbedPane.pageId = prevState.pageId;
-  //     TabbedPane.cssRules = Object.assign({}, prevState.cssRules);
-  //     TabbedPane.updateHTML(false);
-  //     TabbedPane.generateCSSRules();
-  //   }
-  // }
-
   static renumberTabs() {
     let tabCount = 0;
     for (const [key, tabbedPane] of Object.entries(TabbedPane.tabMap)) {
@@ -81,32 +60,56 @@ class TabbedPane {
     }
   }
 
-  
-
   static generateCSSRules() {
     const styleSheet = document.styleSheets[0];
     TabbedPane.cssRules = {};
-    TabbedPane.cssRules[`.${TabbedPane.pageId}-custom-tab-container`] = {web: 'display: flex; \nflex-direction: column;', pdf:""};
-    TabbedPane.cssRules[`.${TabbedPane.pageId}-custom-tab-container .tab-row`] = {web: 'display: flex; \ngap: 0.1em;', pdf:""};
-    TabbedPane.cssRules[`.${TabbedPane.pageId}-custom-tab`] = {web:`\npadding: 15px; border-top-left-radius: 15px; \nborder-top-right-radius: 15px;\ntext-align: center;`, pdf:"display: none;"};
-    TabbedPane.cssRules[`.${TabbedPane.pageId}-custom-tab:hover`] = {web: `cursor: pointer;`, pdf: ""};
-    TabbedPane.cssRules[`.${TabbedPane.pageId}-custom-tab-content-container`] = {web: `display: grid; \ngrid-template-areas: "${TabbedPane.pageId}-grid-area";`, pdf: "display: block;"};
-    TabbedPane.cssRules[`.${TabbedPane.pageId}-custom-tab-content`] = {web: `width: 90%; \nbackground-color: white; grid-area: ${TabbedPane.pageId}-grid-area; border-bottom-left-radius: 15px; \nborder-bottom-right-radius: 15px;`, pdf: "display: block;"};
+    TabbedPane.productionCSS = {};
+    //Preview
+    TabbedPane.cssRules[`.${TabbedPane.pageId}-custom-tab-container`] = { web: 'display: flex; \nflex-direction: column;', pdf: "" };
+    TabbedPane.cssRules[`.${TabbedPane.pageId}-custom-tab-container .tab-row`] = { web: 'display: flex; \ngap: 0.1em;', pdf: "" };
+    TabbedPane.cssRules[`.${TabbedPane.pageId}-custom-tab`] = { web: `\npadding: 15px;\ntext-align: center;`, pdf: "display: none;" };
+    TabbedPane.cssRules[`.${TabbedPane.pageId}-custom-tab:hover`] = { web: `cursor: pointer;`, pdf: "" };
+    TabbedPane.cssRules[`.${TabbedPane.pageId}-custom-tab-content-container`] = { web: `display: grid; \ngrid-template-areas: "${TabbedPane.pageId}-grid-area";`, pdf: "display: block;" };
+    TabbedPane.cssRules[`.${TabbedPane.pageId}-custom-tab-content`] = { web: `width: 90%; \nbackground-color: white; grid-area: ${TabbedPane.pageId}-grid-area; padding: 2em 5%;`, pdf: "display: block;" };
+    //Production
+    TabbedPane.productionCSS[`.${TabbedPane.pageId}-custom-tab-container`] = { web: 'display: flex; \nflex-direction: column;', pdf: "" };
+    TabbedPane.productionCSS[`.${TabbedPane.pageId}-custom-tab-container .tab-row`] = { web: 'display: flex; \ngap: 0.1em;', pdf: "" };
+    TabbedPane.productionCSS[`.${TabbedPane.pageId}-custom-tab`] = { web: `\npadding: 15px;\nlist-style: none;\ntext-align: center;`, pdf: "display: none;" };
+    TabbedPane.productionCSS[`.${TabbedPane.pageId}-custom-tab:hover`] = { web: `cursor: pointer;`, pdf: "" };
+    TabbedPane.productionCSS[`.${TabbedPane.pageId}-custom-tab-content-container`] = { web: `display: grid; \ngrid-template-areas: "${TabbedPane.pageId}-grid-area";\nlist-style: none;`, pdf: "display: block;" };
+    TabbedPane.productionCSS[`.${TabbedPane.pageId}-custom-tab-content`] = { web: `width: 90%; \nbackground-color: white; grid-area: ${TabbedPane.pageId}-grid-area;\nlist-style: none; padding: 1.5em 5%;`, pdf: "display: block;" };
+
+
     let tabsNumbered = true;
     for (const [key, tabbedPane] of Object.entries(TabbedPane.tabMap)) {
       //Vertical tabs
       if (tabbedPane.vertical) {
-      TabbedPane.cssRules[`#${key}`] = {web: `display: flex; \nflex-direction: row; height: 100%;`, pdf: ""};
-      TabbedPane.cssRules[`#${key} .tab-row`] = {web: `display: flex;\nalign-items: stretch;\ngap: 0.1em;\nflex-direction: column;\nwidth:fit-content;`, pdf: "display: none;"};
-      TabbedPane.cssRules[`#${key} .${TabbedPane.pageId}-custom-tab`] = {web: `\npadding: 15px; border-radius: 15px; min-width: 5em;`, pdf: "display: none;"};
-      TabbedPane.cssRules[`#${key} .${TabbedPane.pageId}-custom-tab-content-container`] = {web: `border: 1px solid ${tabbedPane.selectedBg}; \nborder-radius: 15px; \nmargin-left: 0.5em; \nwidth: 100%;`, pdf: ""};
-      TabbedPane.cssRules[`#${key} .${TabbedPane.pageId}-custom-tab-content`] = {web: `border-radius: 15px;`, pdf: ""};  
-    } else {
-        TabbedPane.cssRules[`#${key}`] = {web: `display: flex; \nflex-direction: column;`, pdf: ""};
-        TabbedPane.cssRules[`#${key} .tab-row`] = {web: `display: flex; \ngap: 0.1em;`, pdf: "display: none;"};
-        TabbedPane.cssRules[`#${key} .${TabbedPane.pageId}-custom-tab`] = {web: `\npadding: 15px; border-top-right-radius: 15px; \nborder-top-left-radius: 15px;`, pdf: "display: none;"};
-        TabbedPane.cssRules[`#${key} .${TabbedPane.pageId}-custom-tab-content-container`] = {web: `border: 1px solid ${tabbedPane.selectedBg};\nborder-top: 0px;\nborder-bottom-left-radius: 15px;\nborder-bottom-right-radius: 15px;`, pdf: ""};
-        TabbedPane.cssRules[`#${key} .${TabbedPane.pageId}-custom-tab-content`] = {web: `border-bottom-left-radius: 15px;\nborder-bottom-right-radius: 15px;`, pdf: ""};
+        TabbedPane.cssRules[`#${key}`] = { web: `display: flex; \nflex-direction: row; height: 100%;`, pdf: "" };
+        TabbedPane.cssRules[`#${key} .tab-row`] = { web: `display: flex;\nalign-items: stretch;\ngap: 0.1em;\nflex-direction: column;\nwidth:fit-content;`, pdf: "display: none;" };
+        TabbedPane.cssRules[`#${key} .${TabbedPane.pageId}-custom-tab`] = { web: `\npadding: 15px;\nborder-radius: 15px;\nmin-width: 5em;\nlist-style: none;`, pdf: "display: none;" };
+        TabbedPane.cssRules[`#${key} .${TabbedPane.pageId}-custom-tab-content-container`] = { web: `border: 1px solid ${tabbedPane.selectedBg}; \nborder-radius: 15px; \nmargin-left: 0.5em; \nwidth: 100%;`, pdf: "" };
+        TabbedPane.cssRules[`#${key} .${TabbedPane.pageId}-custom-tab-content`] = { web: `border-radius: 15px;`, pdf: "" };
+
+        TabbedPane.productionCSS[`#${key}`] = { web: `display: flex; \nflex-direction: row; height: 100%;`, pdf: "" };
+        TabbedPane.productionCSS[`#${key} .tab-row`] = { web: `display: flex;\nalign-items: stretch;\ngap: 0.1em;\nflex-direction: column;\nwidth:fit-content;`, pdf: "display: none;" };
+        TabbedPane.productionCSS[`#${key} .${TabbedPane.pageId}-custom-tab`] = { web: `display: flex;\nflex-grow: 1;\njustify-content: center;\nalign-items: center;`, pdf: "display: none;" };
+        TabbedPane.productionCSS[`#${key} details:has(.${TabbedPane.pageId}-custom-tab)`] = { web: `padding: 15px;\nborder-radius: 15px;\nmin-width: 5em;\nlist-style: none;`, pdf: "display: none;" };
+        TabbedPane.productionCSS[`#${key} .${TabbedPane.pageId}-custom-tab-content-container`] = { web: `border: 1px solid ${tabbedPane.selectedBg}; \nborder-radius: 15px; \nmargin-left: 0.5em; \nwidth: 100%;`, pdf: "" };
+        TabbedPane.productionCSS[`#${key} .${TabbedPane.pageId}-custom-tab-content`] = { web: `display: flex;\nwidth: 100%;\nalign-items: center;\njustifiy-content: center;\nborder-radius: 15px;`, pdf: "" };
+        TabbedPane.productionCSS[`#${key} .${TabbedPane.pageId}-custom-tab-content::marker`] = { web: `display: none !important;`, pdf: "display: none !important;" };
+      } else {
+        TabbedPane.cssRules[`#${key}`] = { web: `display: flex; \nflex-direction: column;`, pdf: "" };
+        TabbedPane.cssRules[`#${key} .tab-row`] = { web: `width: 100%;\ndisplay: flex; \ngap: 0.1em;`, pdf: "display: none;" };
+        TabbedPane.cssRules[`#${key} .${TabbedPane.pageId}-custom-tab`] = { web: `\npadding: 15px;\nborder-top-right-radius: 15px; \nborder-top-left-radius: 15px;\nlist-style: none;`, pdf: "display: none;" };
+        TabbedPane.cssRules[`#${key} .${TabbedPane.pageId}-custom-tab-content-container`] = { web: `border: 1px solid ${tabbedPane.selectedBg};\nborder-top: 0px;`, pdf: "" };
+        TabbedPane.cssRules[`#${key} .${TabbedPane.pageId}-custom-tab-content`] = { web: `display: block;`, pdf: "" };
+
+        TabbedPane.productionCSS[`#${key}`] = { web: `display: flex; \nflex-direction: column;`, pdf: "" };
+        TabbedPane.productionCSS[`#${key} .tab-row`] = { web: `display: flex; \ngap: 0.1em;`, pdf: "display: none;" };
+        TabbedPane.productionCSS[`#${key} details:has(.${TabbedPane.pageId}-custom-tab)`] = { web: `display: flex; justify-content: center; align-items: center;border-top-right-radius: 15px; \nborder-top-left-radius: 15px; list-style: none;`, pdf: "display: none;" };
+        TabbedPane.productionCSS[`#${key} .${TabbedPane.pageId}-custom-tab-content-container`] = { web: `border: 1px solid ${tabbedPane.selectedBg};\nborder-top: 0px;`, pdf: "" };
+        TabbedPane.productionCSS[`#${key} .${TabbedPane.pageId}-custom-tab-content`] = { web: `display: flex;\nwidth: 100%;\nalign-items: center;\njustifiy-content: center;\nmargin-bottom: 1.5em;`, pdf: "" };
+        TabbedPane.productionCSS[`#${key} .${TabbedPane.pageId}-custom-tab-content::marker`] = { web: `display: none !important;`, pdf: "display: none !important;" };
       }
       tabbedPane.tabs.forEach((tab, i) => {
         if (tab.tabNumber === -1) {
@@ -119,38 +122,55 @@ class TabbedPane {
     }
 
     for (const [key, tabbedPane] of Object.entries(TabbedPane.tabMap)) {
-      TabbedPane.cssRules[`#${TabbedPane.pageId}-custom-tab-content-container${key}`] = {web: `border: 1px solid ${tabbedPane.selectedBg};\nborder-top: 0px;\nborder-bottom-left-radius: 15px;\nborder-bottom-right-radius: 15px;`, pdf: ""};
+      TabbedPane.cssRules[`#${TabbedPane.pageId}-custom-tab-content-container${key}`] = { web: `border: 1px solid ${tabbedPane.selectedBg};\nborder-top: 0px;\nborder-bottom-left-radius: 15px;\nborder-bottom-right-radius: 15px;`, pdf: "" };
+      TabbedPane.productionCSS[`#${TabbedPane.pageId}-custom-tab-content-container${key}`] = { web: `border: 1px solid ${tabbedPane.selectedBg};\nborder-top: 0px;\nborder-bottom-left-radius: 15px;\nborder-bottom-right-radius: 15px;`, pdf: "" };
       tabbedPane.tabs.forEach((tab, i) => {
-        
 
         if (i === 0) {
-          TabbedPane.cssRules[`#${TabbedPane.pageId}-custom-tab-content-${key}-${tab.tabNumber}`] = {web: `z-index: 1;\npadding: 2em 5%; background-color: ${tabbedPane.bodyBg};\ncolor: ${tabbedPane.bodyColor};`, pdf: `margin-bottom: 0.5em;`};
-          TabbedPane.cssRules[`#${TabbedPane.pageId}-custom-tab-content-${key}-${tab.tabNumber}::before`] = {web: ``, pdf: `content: "${tab.tabText}";\ndisplay: block; font-size: 1.5em;\nfont-weight: bold;\nmargin-bottom: 0.5em;`};
+          TabbedPane.productionCSS[`details:has(#${TabbedPane.pageId}-custom-tab-content-${key}-${tab.tabNumber})`] = { web: `z-index: 1;\npadding: 0em 5%;\nbackground-color: ${tabbedPane.bodyBg};\ncolor: ${tabbedPane.bodyColor};\nlist-style: none; \nborder-bottom-left-radius: 15px; \nborder-bottom-right-radius: 15px;`, pdf: `margin-bottom: 0.5em;` };
+          TabbedPane.cssRules[`#${TabbedPane.pageId}-custom-tab-content-${key}-${tab.tabNumber}`] = { web: `z-index: 1;\ndisplay: block;\nbackground-color: ${tabbedPane.bodyBg};\ncolor: ${tabbedPane.bodyColor};\nborder-bottom-left-radius: 15px; \nborder-bottom-right-radius: 15px;`, pdf: `margin-bottom: 0.5em;` };
+          TabbedPane.productionCSS[`details:has(#${TabbedPane.pageId}-custom-tab-content-${key}-${tab.tabNumber})::before`] = { web: ``, pdf: `content: "${tab.tabText}";\ndisplay: block; font-size: 1.5em;\nfont-weight: bold;\nmargin-bottom: 0.3em;\nlist-style: none;` };
+          TabbedPane.productionCSS[`#${TabbedPane.pageId}-custom-tab-content-${key}-${tab.tabNumber}::before`] = { web: ``, pdf: `content: "${tab.tabText}";\ndisplay: block; font-size: 1.5em;\nfont-weight: bold;\nmargin-bottom: 0.3em;\nlist-style: none;` };
+
           if (tabbedPane.vertical) {
-            TabbedPane.cssRules[`#${TabbedPane.pageId}-custom-tab-${key}-${tab.tabNumber}`] = {web: `background-color: ${tabbedPane.selectedBg};\ncolor: ${tabbedPane.selectedColor};\nheight: ${100.0 / tabbedPane.tabs.length}%;`, pdf: "display: none;"};
+            TabbedPane.productionCSS[`details:has(#${TabbedPane.pageId}-custom-tab-${key}-${tab.tabNumber})`] = { web: `height: ${100.0 / tabbedPane.tabs.length}%;\nlist-style: none; background-color: ${tabbedPane.selectedBg};\ncolor: ${tabbedPane.selectedColor};`, pdf: "display: none;" };
+            TabbedPane.cssRules[`#${TabbedPane.pageId}-custom-tab-${key}-${tab.tabNumber}`] = { web: `height: ${100.0 / tabbedPane.tabs.length}%; background-color: ${tabbedPane.selectedBg};\ncolor: ${tabbedPane.selectedColor};`, pdf: "display: none;" };
           } else {
-          TabbedPane.cssRules[`#${TabbedPane.pageId}-custom-tab-${key}-${tab.tabNumber}`] = {web: `background-color: ${tabbedPane.selectedBg};\ncolor: ${tabbedPane.selectedColor};\nwidth: ${100.0 / tabbedPane.tabs.length}%;`, pdf: "display: none;"};
+            TabbedPane.productionCSS[`details:has(#${TabbedPane.pageId}-custom-tab-${key}-${tab.tabNumber})`] = { web: `width: ${100.0 / tabbedPane.tabs.length}%;\nlist-style:none;\nbackground-color: ${tabbedPane.selectedBg};\ncolor: ${tabbedPane.selectedColor};`, pdf: "display: none;" };
+            TabbedPane.cssRules[`#${TabbedPane.pageId}-custom-tab-${key}-${tab.tabNumber}`] = { web: `width: ${100.0 / tabbedPane.tabs.length}%;\nbackground-color: ${tabbedPane.selectedBg};\ncolor: ${tabbedPane.selectedColor};`, pdf: "display: none;" };
           }
         } else {
-          TabbedPane.cssRules[`#${TabbedPane.pageId}-custom-tab-content-${key}-${tab.tabNumber}`] = {web: `z-index: 0;\nbackground-color: ${tabbedPane.bodyBg};\ncolor: ${tabbedPane.bodyColor};\npadding: 2em 5%;`, pdf: "margin-bottom: 0.5em;"};
-          TabbedPane.cssRules[`#${TabbedPane.pageId}-custom-tab-content-${key}-${tab.tabNumber}::before`] = {web: ``, pdf: `content: "${tab.tabText}";\nbackground-color:${tabbedPane.bodyBg};\ncolor:${tabbedPane.bodyColor};\ndisplay: block;\nfont-size: 1.5em;\nfont-weight: bold;\nmargin-bottom: 0.5em;`};
+          TabbedPane.productionCSS[`details:has(#${TabbedPane.pageId}-custom-tab-content-${key}-${tab.tabNumber})`] = { web: `z-index: 0;\nlist-style:none;\nborder-bottom-left-radius: 15px; \nborder-bottom-right-radius: 15px;display: block;\nbackground-color: ${tabbedPane.bodyBg};\ncolor: ${tabbedPane.bodyColor};`, pdf: "margin-bottom: 0.5em;\nlist-style: none;" };
+          TabbedPane.cssRules[`#${TabbedPane.pageId}-custom-tab-content-${key}-${tab.tabNumber}`] = { web: `z-index: 0;\nlist-style:none;\nborder-bottom-left-radius: 15px; \nborder-bottom-right-radius: 15px;display: block;\nbackground-color: ${tabbedPane.bodyBg};\ncolor: ${tabbedPane.bodyColor};`, pdf: "margin-bottom: 0.5em;" };
+          TabbedPane.productionCSS[`details:has(#${TabbedPane.pageId}-custom-tab-content-${key}-${tab.tabNumber})::before`] = { web: ``, pdf: `content: "${tab.tabText}";\nbackground-color:${tabbedPane.bodyBg};\ncolor:${tabbedPane.bodyColor};\ndisplay: block;\nfont-size: 1.5em;\nfont-weight: bold;\nmargin-bottom: 0.3em;\nmargin-top: 0.5em;` };
+          TabbedPane.productionCSS[`#${TabbedPane.pageId}-custom-tab-content-${key}-${tab.tabNumber}::before`] = { web: ``, pdf: `content: "${tab.tabText}";\nbackground-color:${tabbedPane.bodyBg};\ncolor:${tabbedPane.bodyColor};\ndisplay: block;\nfont-size: 1.5em;\nfont-weight: bold;\nmargin-bottom: 0.3em;\nmargin-top: 0.5em;` };
         }
-
-        TabbedPane.cssRules[`#${TabbedPane.pageId}-custom-tab-content-${key}-${tab.tabNumber}:focus-within`] = {web: `z-index: 1;\npadding: 2em 5%;\nbackground-color: ${tabbedPane.bodyBg};\ncolor: ${tabbedPane.bodyColor};`, pdf: ""};
+        TabbedPane.productionCSS[`#${TabbedPane.pageId}-custom-tab-content-${key}-${tab.tabNumber}::marker`] = { web: `display: none;`, pdf: "display: none;" };
+        TabbedPane.productionCSS[`details:has(#${TabbedPane.pageId}-custom-tab-content-${key}-${tab.tabNumber}:focus-within)`] = { web: `z-index: 1;\nbackground-color: ${tabbedPane.bodyBg};\ncolor: ${tabbedPane.bodyColor}; list-style: none;`, pdf: "" };
+        TabbedPane.cssRules[`#${TabbedPane.pageId}-custom-tab-content-${key}-${tab.tabNumber}:focus-within`] = { web: `z-index: 1;\nbackground-color: ${tabbedPane.bodyBg};\ncolor: ${tabbedPane.bodyColor};`, pdf: "" };
         if (tabbedPane.vertical) {
-          TabbedPane.cssRules[`#${TabbedPane.pageId}-custom-tab-${key}-${tab.tabNumber}`] = {web: `background-color: ${tabbedPane.defaultBg};\ncolor: ${tabbedPane.defaultColor};\nflex-grow: 1;`, pdf: "display: none;"};
+          TabbedPane.cssRules[`#${TabbedPane.pageId}-custom-tab-${key}-${tab.tabNumber}`] = { web: `background-color: ${tabbedPane.defaultBg};\ncolor: ${tabbedPane.defaultColor};\nflex-grow: 1;`, pdf: "display: none;" };
+          TabbedPane.productionCSS[`details:has(#${TabbedPane.pageId}-custom-tab-${key}-${tab.tabNumber})`] = { web: `background-color: ${tabbedPane.defaultBg};\ncolor: ${tabbedPane.defaultColor};\nflex-grow: 1;`, pdf: "display: none;" };
         } else {
-        TabbedPane.cssRules[`#${TabbedPane.pageId}-custom-tab-${key}-${tab.tabNumber}`] = {web: `background-color: ${tabbedPane.defaultBg};\ncolor: ${tabbedPane.defaultColor};\nwidth: ${100.0 / tabbedPane.tabs.length}%;`, pdf: "display: none;"};
+          TabbedPane.productionCSS[`details:has(#${TabbedPane.pageId}-custom-tab-${key}-${tab.tabNumber})`] = { web: `width: ${100.0 / tabbedPane.tabs.length}%;\nbackground-color: ${tabbedPane.defaultBg};\ncolor: ${tabbedPane.defaultColor};`, pdf: "display: none;" };
+          TabbedPane.cssRules[`#${TabbedPane.pageId}-custom-tab-${key}-${tab.tabNumber}`] = { web: `width: ${100.0 / tabbedPane.tabs.length}%;\nbackground-color: ${tabbedPane.defaultBg};\ncolor: ${tabbedPane.defaultColor};`, pdf: "display: none;" };
         }
-        TabbedPane.cssRules[`#${TabbedPane.pageId}-custom-tab-${key}-${tab.tabNumber}:focus`] = {web: `background-color: ${tabbedPane.selectedBg};\ncolor: ${tabbedPane.selectedColor};`, pdf: ""};
-        TabbedPane.cssRules[`.${TabbedPane.pageId}-custom-tab-container:has(#${TabbedPane.pageId}-custom-tab-${key}-${tab.tabNumber}:focus) #${TabbedPane.pageId}-custom-tab-content-${key}-${tab.tabNumber}`] = {web: `z-index: 1;\npadding: 2em 5%;\nbackground-color: ${tabbedPane.bodyBg};\ncolor: ${tabbedPane.bodyColor};`, pdf: ""};
-        TabbedPane.cssRules[`.${TabbedPane.pageId}-custom-tab-container:has(#${TabbedPane.pageId}-custom-tab-content-${key}-${tab.tabNumber}:focus) #${TabbedPane.pageId}-custom-tab-${key}-${tab.tabNumber}`] = {web: `background-color: ${tabbedPane.selectedBg};`, pdf: ""};
-        
+        TabbedPane.cssRules[`#${TabbedPane.pageId}-custom-tab-${key}-${tab.tabNumber}:focus`] = { web: `background-color: ${tabbedPane.selectedBg};\ncolor: ${tabbedPane.selectedColor};`, pdf: "" };
+        TabbedPane.productionCSS[`details:has(#${TabbedPane.pageId}-custom-tab-${key}-${tab.tabNumber}:focus)`] = { web: `background-color: ${tabbedPane.selectedBg};\ncolor: ${tabbedPane.selectedColor};`, pdf: "" };
+        TabbedPane.productionCSS[`.${TabbedPane.pageId}-custom-tab-container:has(#${TabbedPane.pageId}-custom-tab-${key}-${tab.tabNumber}:focus) details:has(#${TabbedPane.pageId}-custom-tab-content-${key}-${tab.tabNumber})`] = { web: `z-index: 1;\nbackground-color: ${tabbedPane.bodyBg};\ncolor: ${tabbedPane.bodyColor}; border-bottom-left-radius: 15px;`, pdf: "" };
+        TabbedPane.cssRules[`.${TabbedPane.pageId}-custom-tab-container:has(#${TabbedPane.pageId}-custom-tab-${key}-${tab.tabNumber}:focus) #${TabbedPane.pageId}-custom-tab-content-${key}-${tab.tabNumber}`] = { web: `z-index: 1;\nbackground-color: ${tabbedPane.bodyBg};\ncolor: ${tabbedPane.bodyColor}; border-bottom-left-radius: 15px;`, pdf: "" };
+        TabbedPane.cssRules[`.${TabbedPane.pageId}-custom-tab-container:has(#${TabbedPane.pageId}-custom-tab-content-${key}-${tab.tabNumber}:focus) #${TabbedPane.pageId}-custom-tab-${key}-${tab.tabNumber}`] = { web: `background-color: ${tabbedPane.selectedBg};`, pdf: "" };
+
+        TabbedPane.productionCSS[`.${TabbedPane.pageId}-custom-tab-container:has(#${TabbedPane.pageId}-custom-tab-${key}-${tab.tabNumber}:focus) details:has(#${TabbedPane.pageId}-custom-tab-content-${key}-${tab.tabNumber})`] = { web: `z-index: 1;\nbackground-color: ${tabbedPane.bodyBg};\ncolor: ${tabbedPane.bodyColor}; border-bottom-left-radius: 15px;`, pdf: "" };
+        TabbedPane.productionCSS[`.${TabbedPane.pageId}-custom-tab-container:has(#${TabbedPane.pageId}-custom-tab-content-${key}-${tab.tabNumber}:focus) #${TabbedPane.pageId}-custom-tab-${key}-${tab.tabNumber}`] = { web: `background-color: ${tabbedPane.selectedBg};`, pdf: "" };
+        TabbedPane.productionCSS[`#${key} .${TabbedPane.pageId}-custom-tab-content summary:first-child`] = { web: `list-style: none;`, pdf: "list-style: none;" };
+
         tabbedPane.tabs.forEach((sibling, j) => {
           if (sibling.tabNumber === tab.tabNumber) {
             return;
           }
-          TabbedPane.cssRules[`.${TabbedPane.pageId}-custom-tab-container:has(#${TabbedPane.pageId}-custom-tab-${key}-${tab.tabNumber}:focus) #${TabbedPane.pageId}-custom-tab-content${sibling.tabNumber}`] = {web: `z-index: 0;`, pdf: ""};
+          TabbedPane.productionCSS[`.${TabbedPane.pageId}-custom-tab-container:has(#${TabbedPane.pageId}-custom-tab-${key}-${tab.tabNumber}:focus) details:has(#${TabbedPane.pageId}-custom-tab-content${sibling.tabNumber})`] = { web: `z-index: 0;`, pdf: "" };
+          TabbedPane.cssRules[`.${TabbedPane.pageId}-custom-tab-container:has(#${TabbedPane.pageId}-custom-tab-${key}-${tab.tabNumber}:focus) #${TabbedPane.pageId}-custom-tab-content${sibling.tabNumber}`] = { web: `z-index: 0;`, pdf: "" };
         });
       });
     }
@@ -164,6 +184,7 @@ class TabbedPane {
       }
 
       styleSheet.insertRule(`${key} {${rule.web}}`, styleSheet.cssRules.length);
+
     }
   }
 
@@ -195,58 +216,88 @@ class TabbedPane {
   }
 
   static updateHTML() {
-    
+
+    const previewContainer = document.getElementById('preview-tabbed-pane');
     let html = "";
+    let previewHtml = "";
     for (const [key, tabbedPane] of Object.entries(TabbedPane.tabMap)) {
       html += `<!-- Tabbed Pane ${key} -->`
+      previewHtml += `<!-- Tabbed Pane ${key} -->`
       html += `<div class="${TabbedPane.pageId}-custom-tab-container" id="${key}">
+                    <div class="tab-row">`;
+      previewHtml += `<div class="${TabbedPane.pageId}-custom-tab-container" id="${key}">
                     <div class="tab-row">`;
       tabbedPane.tabs.forEach((tab, i) => {
         let tabText = tab.tabText;
-        if (document.getElementById(`${TabbedPane.pageId}-custom-tab-${key}-${i + 1}`)) {
-          tabText = document.getElementById(`${TabbedPane.pageId}-custom-tab-${key}-${i + 1}`).innerHTML;
+        if (previewContainer.querySelector(`#${TabbedPane.pageId}-custom-tab-${key}-${i + 1}`)) {
+          tabText = previewContainer.querySelector(`#${TabbedPane.pageId}-custom-tab-${key}-${i + 1}`).innerHTML;
           tab.tabText = tabText;
           //console.log('Tab text: ' + tabText);
         }
-        html += `<div id="${TabbedPane.pageId}-custom-tab-${key}-${i + 1}" class="${TabbedPane.pageId}-custom-tab" role="button" tabindex="0" contentEditable="true">${tabText}</div>`;
+        html += `<details><summary id="${TabbedPane.pageId}-custom-tab-${key}-${i + 1}" class="${TabbedPane.pageId}-custom-tab">${tabText}</summary></details>`;
+        previewHtml += `<div id="${TabbedPane.pageId}-custom-tab-${key}-${i + 1}" class="${TabbedPane.pageId}-custom-tab" contenteditable="true" tabindex="1">${tabText}</div>`;
         tab.tabNumber = i + 1;
       });
       html += `</div>
                     <div class="${TabbedPane.pageId}-custom-tab-content-container" id="${TabbedPane.pageId}-custom-tab-content-container${key}">`;
+      previewHtml += `</div>
+                    <div class="${TabbedPane.pageId}-custom-tab-content-container" id="${TabbedPane.pageId}-custom-tab-content-container${key}">`;
       tabbedPane.tabs.forEach((tab, i) => {
         let tabContent = tab.content;
-        if (document.getElementById(`${TabbedPane.pageId}-custom-tab-content-${key}-${tab.tabNumber}`)) {
-          tabContent = document.getElementById(`${TabbedPane.pageId}-custom-tab-content-${key}-${tab.tabNumber}`).innerHTML;
+        if (previewContainer.querySelector(`#${TabbedPane.pageId}-custom-tab-content-${key}-${tab.tabNumber}`)) {
+          tabContent = previewContainer.querySelector(`#${TabbedPane.pageId}-custom-tab-content-${key}-${tab.tabNumber}`).innerHTML;
         }
-        html += `<div id="${TabbedPane.pageId}-custom-tab-content-${key}-${tab.tabNumber}" class="${TabbedPane.pageId}-custom-tab-content" role="article" contentEditable="true" tabindex="0">${tabContent}</div>`;
+        html += `<details class="${TabbedPane.pageId}-custom-tab-content"><summary id="${TabbedPane.pageId}-custom-tab-content-${key}-${tab.tabNumber}">${tabContent}</summary></details>`;
+        previewHtml += `<div id="${TabbedPane.pageId}-custom-tab-content-${key}-${tab.tabNumber}" class="${TabbedPane.pageId}-custom-tab-content" contenteditable="true" tabindex="1">${tabContent}</div>`;
       });
       html += `</div>
                 </div>
                 <div>&nbsp;</div>
                 <!-- End of Tabbed Pane ${key} -->`;
-              
+      previewHtml += `</div>
+                      </div>
+                      <div>&nbsp;</div>
+                      <!-- End of Tabbed Pane ${key} -->`;
+
     }
-    return html;
+    previewContainer.innerHTML = previewHtml;
+    TabbedPane.productionElement.innerHTML = html;
   }
+
+  static updateProductionContent() {
+    const previewContainer = document.getElementById('preview-tabbed-pane');
+    let tabElements = previewContainer.querySelectorAll(`.${TabbedPane.pageId}-custom-tab`);
+    let contentElements = previewContainer.querySelectorAll(`.${TabbedPane.pageId}-custom-tab-content`);
+    for (const tab of tabElements) {
+      let tabId = tab.id;
+      //TabbedPane.tabMap[TabbedPane.pageId].tabs[i].tabText = tabElements[i].innerHTML;
+      this.productionElement.querySelector(`#${tabId}`).innerHTML = tab.innerHTML;
+    }
+    for (const el of contentElements) {
+      //TabbedPane.tabMap[TabbedPane.pageId].tabs[i].content = contentElements[i].innerHTML;
+      this.productionElement.querySelector(`#${el.id}`).innerHTML = el.innerHTML;
+    }
+  }
+
 
   static getCSS() {
     let css = `/*Custom tabs for page ${TabbedPane.pageId}*/`;
     let pdfCss = `/*Custom tabs for page ${TabbedPane.pageId}*/`;
     TabbedPane.generateCSSRules();
 
-    for (const [key, rule] of Object.entries(TabbedPane.cssRules)) {
+    for (const [key, rule] of Object.entries(TabbedPane.productionCSS)) {
       if (rule.web.length > 0) {
-      css += `\n\n${key} {\n${rule.web}\n}`;
+        css += `\n\n${key} {\n${rule.web}\n}`;
       }
 
-      if (rule.pdf.length > 0){
-      pdfCss += `\n\n${key} {\n${rule.pdf}\n}`;
+      if (rule.pdf.length > 0) {
+        pdfCss += `\n\n${key} {\n${rule.pdf}\n}`;
       }
     }
 
     css += `/*end of custom tabs for page ${TabbedPane.pageId}*/`;
     pdfCss += `/*end of custom tabs for page ${TabbedPane.pageId}*/`;
-    return {web: css, pdf: pdfCss};
+    return { web: css, pdf: pdfCss };
   }
 }
 
@@ -278,7 +329,7 @@ const updateHTML = () => {
       selectedTabbedPane.selectedColor = tabActiveColor;
       selectedTabbedPane.bodyBg = bodyBg;
       selectedTabbedPane.bodyColor = bodyColor;
-      }
+    }
   }
 
   if (selectedTabbedPane) {
@@ -286,7 +337,7 @@ const updateHTML = () => {
     selectedTabbedPane.vertical = verticalTabs;
   }
 
-  previewChartContainer.innerHTML = TabbedPane.updateHTML();
+  TabbedPane.updateHTML();
   addListeners();
   generateCSS();
   generateHTML();
@@ -296,16 +347,20 @@ const addListeners = () => {
 
   const previewContainer = document.getElementById("preview-tabbed-pane");
   const tabs = previewContainer.querySelectorAll(`.${TabbedPane.pageId}-custom-tab`);
-  for (const tab of tabs){
-    tab.addEventListener('click', (e)=>{
+  for (const tab of tabs) {
+    tab.addEventListener('click', (e) => {
       //add logic to update the tabmap here
       currentlySelectedTab = e.target.id;
     })
   }
 
-  let wrappers = previewContainer.querySelectorAll(`div.${TabbedPane.pageId}-custom-tab-container`);
+  let wrappers = previewContainer.querySelectorAll(`.${TabbedPane.pageId}-custom-tab-container`);
   for (let wrapper of wrappers) {
     wrapper.addEventListener("click", () => { setSelectedTabbedPane(wrapper) });
+    const contentPanes = wrapper.querySelectorAll(`.${TabbedPane.pageId}-custom-tab-content`);
+    for (const pane of contentPanes) {
+      pane.addEventListener("click", () => setSelectedTabbedPane(wrapper));
+    }
   }
 }
 
@@ -330,66 +385,6 @@ function rgbToHex(rgb) {
   }
   return hex;
 }
-
-// class UndoManager {
-//   constructor() {
-
-//     this._undoStack = [];
-//     this._idx = 0;
-//     this.backup = function () {
-
-//       let currentState = {
-//         headerBg: rgbToHex(document.getElementById("headerBg").value),
-//         headerColor: rgbToHex(document.getElementById("headerColor").value),
-//         bodyBg: rgbToHex(document.getElementById("bodyBg").value),
-//         bodyColor: rgbToHex(document.getElementById("bodyColor").value),
-//         numAccordions: document.getElementById("numAccordions").value,
-//         html: document.getElementById('preview-tabbed-pane').innerHTML
-//       };
-//       this._undoStack.splice(this._idx + 1);
-//       this._undoStack.push(currentState);
-//       this._idx = this._undoStack.length - 1;
-//       console.info("backup: %o", this._undoStack);
-//     };
-
-//     this.undo = function () {
-
-//       console.log("idx: " + this._idx);
-
-//       if (this._idx === 0) {
-
-//         return;
-//       }
-
-//       let prevState = this._undoStack[--this._idx];
-
-//       //console.info("prevState: %o", prevState);
-//       setColourSelectors(prevState.headerBg, prevState.headerColor, prevState.bodyBg, prevState.bodyColor);
-//       document.getElementById("numAccordions").value = prevState.numAccordions;
-//       document.getElementById('preview-tabbed-pane').innerHTML = prevState.html;
-//       document.getElementById('preview-tabbed-pane').addEventListener("keyup", () => { this.backup(); });
-//     };
-
-//     this.redo = function () {
-
-//       if (this._idx === this._undoStack.length - 1) {
-
-//         return;
-//       }
-
-//       let redoState = this._undoStack[++this._idx];
-
-//       setColourSelectors(redoState.headerBg, redoState.headerColor, redoState.bodyBg, redoState.bodyColor);
-//       document.getElementById('preview-tabbed-pane').innerHTML = redoState.html;
-//       document.getElementById('preview-tabbed-pane').addEventListener("keyup", () => { this.backup(); });
-//       document.getElementById('numAccordions').value = redoState.numAccordions;
-//       generateHTML();
-//     };
-//   }
-// }
-
-
-let undoManager;
 
 function applyBlockFormatting(format) {
   const selection = window.getSelection();
@@ -434,8 +429,8 @@ function removeTagKeepContents(element) {
 
 function generateHTML() {
 
-
-  let editorContent = document.getElementById('preview-tabbed-pane').innerHTML;
+  TabbedPane.updateProductionContent();
+  let editorContent = TabbedPane.productionElement.innerHTML;
   editorContent = editorContent.replaceAll('contenteditable="true"', '');
   editorContent = editorContent.replaceAll('spellcheck="false"', '');
   editorContent = editorContent.replace(/<b>(.*?)<\/b>/g, '<strong>$1</strong>');
@@ -511,8 +506,6 @@ function setSelectedTabbedPane(tabpane) {
 
   currentlySelectedTabbedPane = tabpane;
   const tabbedPaneId = tabpane.id;
-  //console.log('Tabpane id: ' + tabpane.id);
-  //console.info("Tabmap: %o", TabbedPane.tabMap);
   const tabbedPane = TabbedPane.tabMap[tabbedPaneId];
 
   //get tab and tab content elements
@@ -663,14 +656,6 @@ function startup() {
         break;
     }
   }
-    
-  
-  // undoManager = new UndoManager();
-  // undoManager.backup();
-  // document.getElementById('preview-tabbed-pane').addEventListener("keyup", () => {
-
-  //   undoManager.backup();
-  // });
 
   const previewPane = document.getElementById('preview-tabbed-pane');
   previewPane.style.display = 'none';
@@ -687,23 +672,13 @@ function startup() {
       alert('Please enter a page id');
       return;
     }
-    const sanitizeForCSS = (str) => {
-      return str
-        .toLowerCase() // Convert to lowercase
-        .trim() // Remove leading and trailing spaces
-        .replace(/[^a-z0-9\-_]+/g, '-') // Replace invalid characters with hyphens
-        .replace(/^-+|-+$/g, '') // Remove leading and trailing hyphens
-        .replace(/^-?\d+/, 'id-$&'); // Prefix with 'id-' if it starts with a number
-    };
-    TabbedPane.initializeTabMap(sanitizeForCSS(pageId));
+    TabbedPane.initializeTabMap(pageId.replace(/\s+/g, '_'));
     generateCSS();
-    updateHTML();
     generateHTML();
-    
-    
-    
+    addListeners();
+
     previewPane.style.display = 'block';
     modal.style.display = 'none';
   });
-  
+
 }

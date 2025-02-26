@@ -53,7 +53,7 @@ SOFTWARE.
 
                         <div class="color">
                             <span for="headerBg">Tab Default Background</span>
-                            <input type="color" id="tabDefaultBg" class="adv-option-button" value=""/>
+                            <input type="color" id="tabDefaultBg" class="adv-option-button" value="" />
                         </div>
                         <div class="color">
                             <span for="headerBg">Tab Active Text</span>
@@ -91,8 +91,7 @@ SOFTWARE.
                     </div>
                     <div class="color">
                         <span for="uniformColours">Vertical Orientation</span>
-                        <input type="checkbox" id="verticalTabs" onchange="updateHTML()"
-                            class="adv-option-button" />
+                        <input type="checkbox" id="verticalTabs" onchange="updateHTML()" class="adv-option-button" />
                     </div>
                 </div>
             </div>
@@ -100,18 +99,19 @@ SOFTWARE.
             <div id="preview-tabbed-pane">
                 <div class="custom-tab-container" id="tab_pane_placeholder">
                     <div class="tab-row">
-                        <div id="custom-tab1" class="custom-tab" role="button" tabindex="0">Tab 1</div>
-                        <div id="custom-tab2" class="custom-tab" role="button" tabindex="0">Tab 2</div>
-                        <div id="custom-tab3" class="custom-tab" role="button" tabindex="0">Tab 3</div>
+                        <div id="custom-tab1" class="custom-tab" tabindex="1">Tab 1</div>
+                        <div id="custom-tab2" class="custom-tab" tabindex="1">Tab 2</div>
+                        <div id="custom-tab3" class="custom-tab" tabindex="1">Tab 3</div>
                     </div>
                     <div class="custom-tab-content-container" id="custom-tab-content-container1">
-                        <div id="custom-tab-content1" class="custom-tab-content" role="article" tabindex="0">Tab Content 1</div>
-                        <div class="custom-tab-content-container">
-                            <div id="custom-tab-content2" class="custom-tab-content" role="article" tabindex="0">Tab Content 2</div>
-                            <div class="custom-tab-content-container">
-                                <div id="custom-tab-content3" class="custom-tab-content" role="article" tabindex="0">Tab Content 3</div>
-                            </div>
-                        </div>
+                        <div class="custom-tab-content" id="custom-tab-content1" tabindex="1">Tab Content 1</div>
+
+                        <div class="custom-tab-content" id="custom-tab-content2" tabindex="1">Tab Content 2</div>
+
+
+                        <div class="custom-tab-content" id="custom-tab-content3" tabindex="1">Tab Content 3</div>
+
+
                     </div>
                 </div>
             </div>
@@ -171,8 +171,9 @@ SOFTWARE.
                     you can
                     copy the HTML and CSS code to your Pressbooks page.</p>
                 <h3>How to Use</h3>
-                <p>Each page on which you place tabbed panes requires its own CSS, which is why you must enter a unique page id below. Refresh your browser to add tabs to another page.</p>
-                <p>NOTE: Ensure that you name your tabs before copying the HTML/CSS to your Pressbook, as otherwise they might not display properly in PDF exports. Using this editor to build out the content is optional.</p>
+                <p>Each page on which you place tabbed panes requires its own CSS, which is why you must enter a unique
+                    page id below. Use the <b>New Page</b> button
+                    or refresh your browser to add tabs to another page.</p>
                 <p>Click on the "HTML" tab to see the HTML code for your tabbed pane. Click on the "Custom CSS"
                     tab to see the
                     CSS code for your tabbed pane. Copy the HTML and CSS code to your Pressbooks page.</p>
